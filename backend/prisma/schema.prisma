@@ -8,17 +8,89 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  userId    String   @unique
-  brandName String
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String       @id @default(cuid())
+  email       String       @unique
+  userId      String       @unique
+  brandName   String
+  password    String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  ingredients Ingredient[]
+  recipes     Recipe[]
+  expenses    Expense[]
+  sales       Sale[]
+}
 
-  // Relations — added in Step 3–5
-  // ingredients  Ingredient[]
-  // recipes      Recipe[]
-  // transactions Transaction[]
-  // expenses     Expense[]
+model Ingredient {
+  id             String           @id @default(cuid())
+  name           String
+  unit           String
+  packagePrice   Float
+  packageVolume  Float
+  pricePerUnit   Float
+  stock          Float            @default(0)
+  userId         String
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipeItems    RecipeIngredient[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([userId])
+}
+
+model Recipe {
+  id              String             @id @default(cuid())
+  name            String
+  description     String?
+  batchSize       Float
+  batchUnit       String
+  baseRecipeCost  Float              @default(0)
+  userId          String
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ingredients     RecipeIngredient[]
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@index([userId])
+}
+
+model RecipeIngredient {
+  id           String     @id @default(cuid())
+  recipeId     String
+  ingredientId String
+  amount       Float
+  recipe       Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+
+  @@unique([recipeId, ingredientId])
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  date        DateTime
+  category    String
+  description String
+  amount      Float
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Sale {
+  id           String   @id @default(cuid())
+  date         DateTime
+  itemName     String
+  recipeId     String?
+  qty          Float
+  pricePerUnit Float
+  totalRevenue Float
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
 }

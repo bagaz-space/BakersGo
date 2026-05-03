@@ -3,6 +3,11 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import jwt from "@fastify/jwt";
 import { authRoutes } from "./routes/auth";
+import { ingredientRoutes } from "./routes/ingredients";
+import { recipeRoutes } from "./routes/recipes";
+import { expenseRoutes } from "./routes/expenses";
+import { saleRoutes } from "./routes/sales";
+import { reportRoutes } from "./routes/reports";
 
 const app = Fastify({ logger: true });
 
@@ -18,6 +23,11 @@ app.register(jwt, {
 app.get("/health", async () => ({ status: "ok", ts: Date.now() }));
 
 app.register(authRoutes);
+app.register(ingredientRoutes);
+app.register(recipeRoutes);
+app.register(expenseRoutes);
+app.register(saleRoutes);
+app.register(reportRoutes);
 
 const port = Number(process.env.PORT ?? 3000);
 
