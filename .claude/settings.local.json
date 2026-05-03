@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-Command *)",
+      "Bash(where.exe flutter *)",
+      "Bash(where.exe dart *)"
+    ]
+  }
+}
