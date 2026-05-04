@@ -3,7 +3,8 @@
     "allow": [
       "PowerShell(Get-Command *)",
       "Bash(where.exe flutter *)",
-      "Bash(where.exe dart *)"
+      "Bash(where.exe dart *)",
+      "PowerShell(Get-NetTCPConnection *)"
     ]
   }
 }

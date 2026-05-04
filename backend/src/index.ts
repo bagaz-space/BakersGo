@@ -8,6 +8,7 @@ import { recipeRoutes } from "./routes/recipes";
 import { expenseRoutes } from "./routes/expenses";
 import { saleRoutes } from "./routes/sales";
 import { reportRoutes } from "./routes/reports";
+import { hppRoutes } from "./routes/hpp";
 
 const app = Fastify({ logger: true });
 
@@ -28,6 +29,7 @@ app.register(recipeRoutes);
 app.register(expenseRoutes);
 app.register(saleRoutes);
 app.register(reportRoutes);
+app.register(hppRoutes);
 
 const port = Number(process.env.PORT ?? 3000);
 

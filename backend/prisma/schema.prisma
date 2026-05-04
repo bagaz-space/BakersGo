@@ -19,6 +19,7 @@ model User {
   recipes     Recipe[]
   expenses    Expense[]
   sales       Sale[]
+  hppEntries  HppEntry[]
 }
 
 model Ingredient {
@@ -91,6 +92,34 @@ model Sale {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model HppEntry {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipeId       String
+  recipeName     String
+  batchSize      Float
+  batchUnit      String
+  baseRecipeCost Float
+  listrik        Float    @default(0)
+  gas            Float    @default(0)
+  tenagaKerja    Float    @default(0)
+  overhead       Float    @default(0)
+  kotak          Float    @default(0)
+  stiker         Float    @default(0)
+  kemasanLain    Float    @default(0)
+  marginReseller Float    @default(0)
+  marginEndUser  Float    @default(0)
+  hppTotal       Float
+  hppPerUnit     Float
+  hargaReseller  Float
+  hargaEndUser   Float
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   @@index([userId])
 }
