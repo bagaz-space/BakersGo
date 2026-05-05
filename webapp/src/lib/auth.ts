@@ -1,5 +1,3 @@
-'use server';
-
 import { cookies } from 'next/headers';
 
 const TOKEN_KEY = 'bakersgo_token';

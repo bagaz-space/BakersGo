@@ -2,5 +2,8 @@
   "name": "bakersgo",
   "private": true,
   "version": "0.0.1",
-  "packageManager": "pnpm@10.33.2"
+  "packageManager": "pnpm@10.33.2",
+  "scripts": {
+    "dev": "pnpm --parallel --filter backend --filter webapp run dev"
+  }
 }
