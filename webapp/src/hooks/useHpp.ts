@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
-import type { HppEntry, CreateHppDto, HppListResponse } from '@bakersgo/types';
+import type { HppEntry, CreateHppDto, UpdateHppDto, HppListResponse } from '@bakersgo/types';
 
 async function getToken(): Promise<string | undefined> {
   const res = await fetch('/api/auth/token');
@@ -27,6 +27,17 @@ export function useSaveHpp() {
     mutationFn: async (dto: CreateHppDto) => {
       const token = await getToken();
       return api.post<HppEntry>('/hpp', dto, token);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['hpp'] }),
+  });
+}
+
+export function useUpdateHpp() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, dto }: { id: string; dto: UpdateHppDto }) => {
+      const token = await getToken();
+      return api.put<HppEntry>(`/hpp/${id}`, dto, token);
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['hpp'] }),
   });

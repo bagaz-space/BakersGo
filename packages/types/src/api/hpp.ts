@@ -44,6 +44,8 @@ export interface CreateHppDto {
   hargaEndUser: number;
 }
 
+export interface UpdateHppDto extends Partial<CreateHppDto> {}
+
 export interface HppListResponse {
   data: HppEntry[];
   total: number;

@@ -3,7 +3,7 @@ import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../generated/prisma/client';
 import { requireAuth, getUserId } from '../middleware/auth';
-import type { CreateHppDto } from '@bakersgo/types';
+import type { CreateHppDto, UpdateHppDto } from '@bakersgo/types';
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
@@ -44,6 +44,21 @@ export async function hppRoutes(app: FastifyInstance) {
       });
 
       return reply.status(201).send(entry);
+    },
+  );
+
+  // PUT /hpp/:id
+  app.put<{ Params: { id: string }; Body: UpdateHppDto }>(
+    '/hpp/:id',
+    { preHandler: requireAuth },
+    async (request, reply) => {
+      const userId = getUserId(request);
+      const { id } = request.params;
+      const existing = await prisma.hppEntry.findFirst({ where: { id, userId } });
+      if (!existing) return reply.status(404).send({ message: 'HPP entry tidak ditemukan' });
+
+      const updated = await prisma.hppEntry.update({ where: { id }, data: request.body });
+      return reply.send(updated);
     },
   );
 
