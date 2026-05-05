@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../generated/prisma/client';
+import { requireAuth, getUserId } from '../middleware/auth';
 import type {
   LoginRequest,
   RegisterRequest,
@@ -74,4 +75,15 @@ export async function authRoutes(app: FastifyInstance) {
     const response: AuthResponse = { token, user: toUserProfile(user) };
     return reply.send(response);
   });
+
+  app.get(
+    '/auth/profile',
+    { preHandler: requireAuth },
+    async (request, reply) => {
+      const userId = getUserId(request);
+      const user = await prisma.user.findUnique({ where: { id: userId } });
+      if (!user) return reply.status(404).send({ message: 'User tidak ditemukan' });
+      return reply.send(toUserProfile(user));
+    },
+  );
 }
