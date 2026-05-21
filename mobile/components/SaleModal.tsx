@@ -104,8 +104,9 @@ export function SaleModal({ visible, sale, onClose }: SaleModalProps) {
     const entry = hppEntries.find((h) => h.id === hppEntryId);
     if (!entry) return;
     setValue('itemName', entry.recipeName);
+    // Use channel value at time of hppEntryId change only
     setValue('pricePerUnit', channel === 'RESELLER' ? entry.hargaReseller : entry.hargaEndUser);
-  }, [hppEntryId, channel, hppEntries, setValue, isEdit]);
+  }, [hppEntryId, hppEntries, setValue, isEdit]); // channel intentionally omitted
 
   const watchedQty = watch('qty');
   const watchedPrice = watch('pricePerUnit');
