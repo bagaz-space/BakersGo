@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -40,6 +40,8 @@ type RegisterForm = z.infer<typeof registerSchema>;
 export default function RegisterScreen() {
   const router = useRouter();
   const [apiError, setApiError] = useState<string | null>(null);
+  const mounted = useRef(true);
+  useEffect(() => () => { mounted.current = false; }, []);
 
   const {
     control,
@@ -68,6 +70,7 @@ export default function RegisterScreen() {
       await setToken(res.token);
       router.replace('/(app)');
     } catch (err) {
+      if (!mounted.current) return;
       if (err instanceof ApiError) {
         if (err.status === 409) {
           setApiError('Email atau username sudah digunakan');

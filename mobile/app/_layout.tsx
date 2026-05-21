@@ -11,20 +11,24 @@ export default function RootLayout() {
   const router = useRouter();
 
   useEffect(() => {
+    let mounted = true;
     (async () => {
       try {
         const token = await getToken();
+        if (!mounted) return;
+        setChecking(false);
         if (token) {
           router.replace('/(app)');
         } else {
           router.replace('/(auth)/login');
         }
       } catch {
-        router.replace('/(auth)/login');
-      } finally {
+        if (!mounted) return;
         setChecking(false);
+        router.replace('/(auth)/login');
       }
     })();
+    return () => { mounted = false; };
   }, []);
 
   if (checking) {

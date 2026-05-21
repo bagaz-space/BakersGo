@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -29,6 +29,8 @@ type LoginForm = z.infer<typeof loginSchema>;
 export default function LoginScreen() {
   const router = useRouter();
   const [apiError, setApiError] = useState<string | null>(null);
+  const mounted = useRef(true);
+  useEffect(() => () => { mounted.current = false; }, []);
 
   const {
     control,
@@ -49,6 +51,7 @@ export default function LoginScreen() {
       await setToken(res.token);
       router.replace('/(app)');
     } catch (err) {
+      if (!mounted.current) return;
       if (err instanceof ApiError) {
         setApiError('Email atau password salah');
       } else {
