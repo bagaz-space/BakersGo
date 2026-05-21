@@ -2,12 +2,15 @@ import { Tabs, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native';
 import { clearToken } from '@/lib/auth';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function AppLayout() {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   async function handleLogout() {
     await clearToken();
+    queryClient.clear();
     router.replace('/(auth)/login');
   }
 
