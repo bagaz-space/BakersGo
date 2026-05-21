@@ -69,6 +69,15 @@ export default function AppLayout() {
         }}
       />
       <Tabs.Screen
+        name="hpp/index"
+        options={{
+          title: 'HPP',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="calculator" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="transaksi/index"
         options={{
           title: 'Transaksi',
