@@ -38,6 +38,7 @@ export default function BahanScreen() {
   }
 
   function confirmDelete(ingredient: Ingredient) {
+    if (deleteMutation.isPending) return;
     Alert.alert(
       'Hapus Bahan',
       `Yakin ingin menghapus "${ingredient.name}"? Tindakan ini tidak dapat dibatalkan.`,
@@ -46,7 +47,13 @@ export default function BahanScreen() {
         {
           text: 'Hapus',
           style: 'destructive',
-          onPress: () => deleteMutation.mutateAsync(ingredient.id),
+          onPress: async () => {
+            try {
+              await deleteMutation.mutateAsync(ingredient.id);
+            } catch {
+              Alert.alert('Gagal', 'Gagal menghapus bahan. Coba lagi.');
+            }
+          },
         },
       ]
     );
@@ -106,6 +113,7 @@ export default function BahanScreen() {
             ingredient={item}
             onEdit={() => openEdit(item)}
             onDelete={() => confirmDelete(item)}
+            isDeleting={deleteMutation.isPending}
           />
         )}
       />
@@ -130,9 +138,10 @@ interface IngredientCardProps {
   ingredient: Ingredient;
   onEdit: () => void;
   onDelete: () => void;
+  isDeleting?: boolean;
 }
 
-function IngredientCard({ ingredient, onEdit, onDelete }: IngredientCardProps) {
+function IngredientCard({ ingredient, onEdit, onDelete, isDeleting }: IngredientCardProps) {
   return (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
@@ -148,7 +157,8 @@ function IngredientCard({ ingredient, onEdit, onDelete }: IngredientCardProps) {
             <Ionicons name="pencil" size={18} color="#A0813A" />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={onDelete}
+            onPress={() => !isDeleting && onDelete()}
+            disabled={isDeleting}
             style={[styles.actionButton, styles.actionButtonDelete]}
             hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           >

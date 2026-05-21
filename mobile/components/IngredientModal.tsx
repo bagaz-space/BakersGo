@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Modal,
@@ -53,9 +53,9 @@ export function IngredientModal({ visible, ingredient, onClose }: IngredientModa
     defaultValues: {
       name: '',
       unit: 'gram',
-      packagePrice: undefined as unknown as number,
-      packageVolume: undefined as unknown as number,
-      stock: undefined as unknown as number,
+      packagePrice: 0,
+      packageVolume: 0,
+      stock: 0,
     },
   });
 
@@ -73,11 +73,13 @@ export function IngredientModal({ visible, ingredient, onClose }: IngredientModa
         reset({
           name: '',
           unit: 'gram',
-          packagePrice: undefined as unknown as number,
-          packageVolume: undefined as unknown as number,
-          stock: undefined as unknown as number,
+          packagePrice: 0,
+          packageVolume: 0,
+          stock: 0,
         });
       }
+    } else {
+      setSubmitError(null);
     }
   }, [visible, ingredient, reset]);
 
@@ -89,13 +91,21 @@ export function IngredientModal({ visible, ingredient, onClose }: IngredientModa
       : 0;
   const unitLabel = watch('unit') || 'satuan';
 
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
   const onSubmit = async (values: FormValues) => {
-    if (isEdit && ingredient) {
-      await updateMutation.mutateAsync({ id: ingredient.id, dto: values });
-    } else {
-      await createMutation.mutateAsync(values);
+    try {
+      setSubmitError(null);
+      if (isEdit && ingredient) {
+        await updateMutation.mutateAsync({ id: ingredient.id, dto: values });
+      } else {
+        await createMutation.mutateAsync(values);
+      }
+      onClose();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Terjadi kesalahan';
+      setSubmitError(message);
     }
-    onClose();
   };
 
   const isLoading = createMutation.isPending || updateMutation.isPending;
@@ -197,7 +207,7 @@ export function IngredientModal({ visible, ingredient, onClose }: IngredientModa
                         placeholder="0"
                         keyboardType="numeric"
                         placeholderTextColor="#9CA3AF"
-                        value={value !== undefined && !isNaN(value) ? String(value) : ''}
+                        value={value === 0 ? '' : String(value)}
                         onChangeText={onChange}
                         onBlur={onBlur}
                       />
@@ -218,7 +228,7 @@ export function IngredientModal({ visible, ingredient, onClose }: IngredientModa
                     label="Volume Kemasan"
                     placeholder="0"
                     keyboardType="numeric"
-                    value={value !== undefined && !isNaN(value) ? String(value) : ''}
+                    value={value === 0 ? '' : String(value)}
                     onChangeText={onChange}
                     onBlur={onBlur}
                     error={errors.packageVolume?.message}
@@ -235,7 +245,7 @@ export function IngredientModal({ visible, ingredient, onClose }: IngredientModa
                     label="Stok Awal"
                     placeholder="0"
                     keyboardType="numeric"
-                    value={value !== undefined && !isNaN(value) ? String(value) : ''}
+                    value={value === 0 ? '' : String(value)}
                     onChangeText={onChange}
                     onBlur={onBlur}
                     error={errors.stock?.message}
@@ -250,6 +260,12 @@ export function IngredientModal({ visible, ingredient, onClose }: IngredientModa
                   Rp {pricePerUnit.toLocaleString('id-ID')}/{unitLabel}
                 </Text>
               </View>
+
+              {submitError && (
+                <Text style={{ color: '#DC2626', fontSize: 13, textAlign: 'center' }}>
+                  {submitError}
+                </Text>
+              )}
 
               <Button
                 title={isEdit ? 'Simpan Perubahan' : 'Tambah Bahan'}
