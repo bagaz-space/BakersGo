@@ -369,6 +369,7 @@ export default function HppScreen() {
   }
 
   function handleDelete(entry: HppEntry) {
+    if (deleteHpp.isPending) return;
     Alert.alert(
       'Hapus HPP',
       `Hapus HPP untuk "${entry.recipeName}"?`,
