@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Plus, Pencil, Trash2, ChevronDown, X } from 'lucide-react';
 import { useForm, useFieldArray } from 'react-hook-form';
+import type { Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -57,7 +58,7 @@ function RecipeModal({
     control,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as Resolver<FormValues>,
     defaultValues: recipe
       ? {
           name: recipe.name,
