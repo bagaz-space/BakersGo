@@ -16,13 +16,9 @@ import { useIngredients } from '@/hooks/useIngredients';
 import { formatCurrency } from '@/lib/utils';
 import type { Recipe } from '@bakersgo/types';
 
-const BATCH_UNIT_OPTIONS = ['pcs', 'loyang', 'porsi', 'lusin', 'buah'] as const;
-
 const schema = z.object({
   name: z.string().min(1, 'Nama wajib diisi'),
   description: z.string().optional(),
-  batchSize: z.coerce.number().positive('Ukuran batch harus > 0'),
-  batchUnit: z.string().min(1, 'Satuan batch wajib diisi'),
   ingredients: z
     .array(
       z.object({
@@ -63,15 +59,12 @@ function RecipeModal({
       ? {
           name: recipe.name,
           description: recipe.description ?? '',
-          batchSize: recipe.batchSize,
-          batchUnit: recipe.batchUnit,
           ingredients: recipe.ingredients.map((ri) => ({
             ingredientId: ri.ingredientId,
             amount: ri.amount,
           })),
         }
       : {
-          batchUnit: 'pcs',
           ingredients: [{ ingredientId: '', amount: 0 }],
         },
   });
@@ -86,10 +79,11 @@ function RecipeModal({
   }, 0);
 
   async function onSubmit(values: FormValues) {
+    const dto = { ...values, batchSize: 1, batchUnit: 'pcs' };
     if (isEdit) {
-      await update.mutateAsync({ id: recipe!.id, dto: values });
+      await update.mutateAsync({ id: recipe!.id, dto });
     } else {
-      await create.mutateAsync(values);
+      await create.mutateAsync(dto);
     }
     onClose();
   }
@@ -137,47 +131,6 @@ function RecipeModal({
               className={fieldCls}
               placeholder="cth: Resep standar untuk 1 loyang"
             />
-          </div>
-
-          {/* Batch Size + Unit */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">
-                Ukuran Batch
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                {...register('batchSize')}
-                className={fieldCls}
-                placeholder="12"
-              />
-              {errors.batchSize && (
-                <p className="mt-1 text-xs text-destructive">{errors.batchSize.message}</p>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">
-                Satuan Batch
-              </label>
-              <div className="relative">
-                <select
-                  {...register('batchUnit')}
-                  className={`${fieldCls} appearance-none pr-9 cursor-pointer`}
-                >
-                  {BATCH_UNIT_OPTIONS.map((u) => (
-                    <option key={u} value={u}>
-                      {u}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown
-                  size={15}
-                  className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#A0813A]"
-                />
-              </div>
-            </div>
           </div>
 
           {/* Komposisi Bahan */}

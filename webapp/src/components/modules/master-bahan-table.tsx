@@ -22,7 +22,6 @@ const schema = z.object({
   unit: z.string().min(1, 'Satuan wajib diisi'),
   packagePrice: z.coerce.number().positive('Harga harus > 0'),
   packageVolume: z.coerce.number().positive('Volume harus > 0'),
-  stock: z.coerce.number().min(0, 'Stok tidak boleh negatif'),
 });
 type FormValues = z.infer<typeof schema>;
 
@@ -63,9 +62,8 @@ function IngredientModal({
           unit: ingredient.unit,
           packagePrice: ingredient.packagePrice,
           packageVolume: ingredient.packageVolume,
-          stock: ingredient.stock,
         }
-      : { unit: 'gram', stock: 0 },
+      : { unit: 'gram' },
   });
 
   const packagePrice = watch('packagePrice') ?? 0;
@@ -74,10 +72,11 @@ function IngredientModal({
   const pricePerUnit = packageVolume > 0 ? packagePrice / packageVolume : 0;
 
   async function onSubmit(values: FormValues) {
+    const dto = { ...values, stock: 0 };
     if (isEdit) {
-      await update.mutateAsync({ id: ingredient!.id, dto: values });
+      await update.mutateAsync({ id: ingredient!.id, dto });
     } else {
-      await create.mutateAsync(values);
+      await create.mutateAsync(dto);
     }
     onClose();
   }
@@ -123,21 +122,6 @@ function IngredientModal({
                 />
               </div>
               {errors.unit && <p className="mt-1 text-xs text-destructive">{errors.unit.message}</p>}
-            </div>
-
-            {/* Stok — decimal */}
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">Stok</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                {...register('stock')}
-                onInput={handleDecimalInput}
-                className={fieldCls}
-                placeholder="0.00"
-              />
-              {errors.stock && <p className="mt-1 text-xs text-destructive">{errors.stock.message}</p>}
             </div>
 
             {/* Harga Kemasan */}

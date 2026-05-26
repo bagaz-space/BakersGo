@@ -7,6 +7,8 @@ import { useHppEntries, useSaveHpp, useUpdateHpp, useDeleteHpp } from '@/hooks/u
 import { formatCurrency } from '@/lib/utils';
 import type { HppEntry } from '@bakersgo/types';
 
+const PRODUKSI_UNIT_OPTIONS = ['pcs', 'loyang', 'porsi', 'lusin', 'buah'] as const;
+
 const fieldCls =
   'w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0813A] focus:border-[#A0813A] transition-colors';
 
@@ -127,6 +129,8 @@ export function HppCalculator() {
   const [kemasanLain, setKemasanLain] = useState(0);
   const [marginReseller, setMarginReseller] = useState(0);
   const [marginEndUser, setMarginEndUser] = useState(0);
+  const [jumlahProduksi, setJumlahProduksi] = useState(0);
+  const [satuanProduksi, setSatuanProduksi] = useState('pcs');
   const [saved, setSaved] = useState(false);
   const [deleting, setDeleting] = useState<HppEntry | null>(null);
 
@@ -138,7 +142,7 @@ export function HppCalculator() {
     const totalZonaDapur = listrik + gas + tenagaKerja + overhead;
     const totalZonaFinal = kotak + stiker + kemasanLain;
     const hppTotal = baseRecipeCost + totalZonaDapur + totalZonaFinal;
-    const hppPerUnit = selectedRecipe.batchSize > 0 ? hppTotal / selectedRecipe.batchSize : 0;
+    const hppPerUnit = jumlahProduksi > 0 ? hppTotal / jumlahProduksi : 0;
     const hargaReseller = hppPerUnit * (1 + marginReseller / 100);
     const hargaEndUser = hppPerUnit * (1 + marginEndUser / 100);
     return {
@@ -152,7 +156,7 @@ export function HppCalculator() {
       profitReseller: hargaReseller - hppPerUnit,
       profitEndUser: hargaEndUser - hppPerUnit,
     };
-  }, [selectedRecipe, listrik, gas, tenagaKerja, overhead, kotak, stiker, kemasanLain, marginReseller, marginEndUser]);
+  }, [selectedRecipe, listrik, gas, tenagaKerja, overhead, kotak, stiker, kemasanLain, marginReseller, marginEndUser, jumlahProduksi]);
 
   function handleRecipeChange(id: string) {
     setSelectedRecipeId(id);
@@ -161,6 +165,7 @@ export function HppCalculator() {
     setListrik(0); setGas(0); setTenagaKerja(0); setOverhead(0);
     setKotak(0); setStiker(0); setKemasanLain(0);
     setMarginReseller(0); setMarginEndUser(0);
+    setJumlahProduksi(0); setSatuanProduksi('pcs');
   }
 
   function handleEditEntry(entry: HppEntry) {
@@ -176,6 +181,8 @@ export function HppCalculator() {
     setKemasanLain(entry.kemasanLain);
     setMarginReseller(entry.marginReseller);
     setMarginEndUser(entry.marginEndUser);
+    setJumlahProduksi(entry.batchSize);
+    setSatuanProduksi(entry.batchUnit);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -186,6 +193,7 @@ export function HppCalculator() {
     setListrik(0); setGas(0); setTenagaKerja(0); setOverhead(0);
     setKotak(0); setStiker(0); setKemasanLain(0);
     setMarginReseller(0); setMarginEndUser(0);
+    setJumlahProduksi(0); setSatuanProduksi('pcs');
   }
 
   async function handleSave() {
@@ -193,8 +201,8 @@ export function HppCalculator() {
     const dto = {
       recipeId: selectedRecipe.id,
       recipeName: selectedRecipe.name,
-      batchSize: selectedRecipe.batchSize,
-      batchUnit: selectedRecipe.batchUnit,
+      batchSize: jumlahProduksi,
+      batchUnit: satuanProduksi,
       baseRecipeCost: result.baseRecipeCost,
       listrik, gas, tenagaKerja, overhead,
       kotak, stiker, kemasanLain,
@@ -271,20 +279,9 @@ export function HppCalculator() {
             </div>
 
             {selectedRecipe && (
-              <div className="rounded-xl bg-muted/50 px-4 py-3 flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground">Ukuran Batch</p>
-                  <p className="text-sm font-medium text-foreground">
-                    {selectedRecipe.batchSize.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}{' '}
-                    {selectedRecipe.batchUnit}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs text-muted-foreground">Biaya Dasar Resep</p>
-                  <p className="text-sm font-semibold text-[#A0813A]">
-                    {formatCurrency(selectedRecipe.baseRecipeCost)}
-                  </p>
-                </div>
+              <div className="rounded-xl bg-muted/50 px-4 py-3 text-right">
+                <p className="text-xs text-muted-foreground">Biaya Dasar Resep</p>
+                <p className="text-sm font-semibold text-[#A0813A]">{formatCurrency(selectedRecipe.baseRecipeCost)}</p>
               </div>
             )}
           </div>
@@ -301,6 +298,10 @@ export function HppCalculator() {
               <CostInput label="Upah Tenaga Kerja (Rp)" value={tenagaKerja} onChange={(v) => { setTenagaKerja(v); setSaved(false); }} />
               <CostInput label="Overhead Lainnya (Rp)" value={overhead} onChange={(v) => { setOverhead(v); setSaved(false); }} />
             </div>
+            <div className="rounded-xl bg-muted/50 px-4 py-3 text-right">
+              <p className="text-xs text-muted-foreground">HPP s/d Zona Dapur</p>
+              <p className="text-sm font-semibold text-[#A0813A]">{result ? formatCurrency(result.baseRecipeCost + result.totalZonaDapur) : '—'}</p>
+            </div>
           </SectionCard>
 
           {/* Zona Final */}
@@ -309,6 +310,47 @@ export function HppCalculator() {
               <CostInput label="Biaya Kotak/Box (Rp)" value={kotak} onChange={(v) => { setKotak(v); setSaved(false); }} />
               <CostInput label="Biaya Stiker (Rp)" value={stiker} onChange={(v) => { setStiker(v); setSaved(false); }} />
               <CostInput label="Kemasan Lainnya (Rp)" value={kemasanLain} onChange={(v) => { setKemasanLain(v); setSaved(false); }} />
+            </div>
+            <div className="rounded-xl bg-muted/50 px-4 py-3 text-right">
+              <p className="text-xs text-muted-foreground">HPP Total (1 Batch)</p>
+              <p className="text-sm font-semibold text-[#A0813A]">{result ? formatCurrency(result.hppTotal) : '—'}</p>
+            </div>
+          </SectionCard>
+
+          {/* Zona Produksi */}
+          <SectionCard title="Zona Produksi — Item Per Produksi">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">Jumlah Item Per Produksi</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={jumlahProduksi || ''}
+                  onChange={(e) => { setJumlahProduksi(Math.max(0, Number(e.target.value) || 0)); setSaved(false); }}
+                  className={fieldCls}
+                  placeholder="12"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">Satuan Produksi</label>
+                <div className="relative">
+                  <select
+                    value={satuanProduksi}
+                    onChange={(e) => { setSatuanProduksi(e.target.value); setSaved(false); }}
+                    className={`${fieldCls} appearance-none pr-9 cursor-pointer`}
+                  >
+                    {PRODUKSI_UNIT_OPTIONS.map((u) => (
+                      <option key={u} value={u}>{u}</option>
+                    ))}
+                  </select>
+                  <ChevronDown size={15} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#A0813A]" />
+                </div>
+              </div>
+            </div>
+            <div className="rounded-xl bg-muted/50 px-4 py-3 text-right">
+              <p className="text-xs text-muted-foreground">HPP per Unit</p>
+              <p className="text-sm font-semibold text-[#A0813A]">{result && result.hppPerUnit > 0 ? formatCurrency(result.hppPerUnit) : '—'}</p>
             </div>
           </SectionCard>
 
@@ -334,6 +376,16 @@ export function HppCalculator() {
                 />
               </div>
             </div>
+            <div className="flex gap-3">
+              <div className="flex-1 rounded-xl bg-muted/50 px-4 py-3 text-right">
+                <p className="text-xs text-muted-foreground">Est. Harga Reseller</p>
+                <p className="text-sm font-semibold text-[#A0813A]">{result ? formatCurrency(result.hargaReseller) : '—'}</p>
+              </div>
+              <div className="flex-1 rounded-xl bg-muted/50 px-4 py-3 text-right">
+                <p className="text-xs text-muted-foreground">Est. Harga End User</p>
+                <p className="text-sm font-semibold text-[#A0813A]">{result ? formatCurrency(result.hargaEndUser) : '—'}</p>
+              </div>
+            </div>
           </SectionCard>
 
           {/* Results */}
@@ -347,7 +399,7 @@ export function HppCalculator() {
                 <ResultRow label="Total Zona Final" value={result.totalZonaFinal} />
                 <ResultRow label="HPP Total (1 Batch)" value={result.hppTotal} highlight separator />
                 <ResultRow
-                  label={`HPP per Unit (÷ ${selectedRecipe.batchSize} ${selectedRecipe.batchUnit})`}
+                  label={`HPP per Unit (÷ ${jumlahProduksi} ${satuanProduksi})`}
                   value={result.hppPerUnit}
                   highlight
                 />
