@@ -48,7 +48,7 @@ export async function authRoutes(app: FastifyInstance) {
         .send({ message: 'Email atau username sudah digunakan' });
     }
 
-    const hashed = await bcrypt.hash(password, 12);
+    const hashed = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
       data: { email, userId, brandName, password: hashed },
     });
