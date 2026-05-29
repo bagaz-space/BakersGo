@@ -16,8 +16,7 @@ import { useExpenses, useDeleteExpense } from '@/hooks/useExpenses';
 import { SaleModal } from '@/components/SaleModal';
 import { ExpenseModal } from '@/components/ExpenseModal';
 import { formatRupiah, formatDate, getTodayString, getMonthStart } from '@/lib/format';
-import type { Sale } from '@/hooks/useSales';
-import type { Expense, ExpenseCategory } from '@/hooks/useExpenses';
+import type { Sale, Expense, ExpenseCategory } from '@bakersgo/types';
 
 type Tab = 'penjualan' | 'pengeluaran';
 

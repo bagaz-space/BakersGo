@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useCreateExpense, useUpdateExpense } from '@/hooks/useExpenses';
 import { getTodayString } from '@/lib/format';
-import type { Expense, ExpenseCategory, CreateExpenseDto } from '@/hooks/useExpenses';
+import type { Expense, ExpenseCategory, CreateExpenseDto } from '@bakersgo/types';
 
 const CATEGORIES: ExpenseCategory[] = ['BAHAN_BAKU', 'OPERASIONAL', 'LISTRIK', 'GAJI', 'LAINNYA'];
 

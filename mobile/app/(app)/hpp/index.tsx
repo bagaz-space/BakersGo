@@ -12,6 +12,7 @@ import { useRecipes } from '@/hooks/useRecipes';
 import { useHppEntries, useSaveHpp, useUpdateHpp, useDeleteHpp } from '@/hooks/useHpp';
 import { RecipePickerModal } from '@/components/RecipePickerModal';
 import { formatRupiah } from '@/lib/format';
+import { calculateHpp } from '@/application/use-cases/hpp/calculateHpp';
 import type { HppEntry, CreateHppDto } from '@bakersgo/types';
 
 // ─── Result Row Helper ────────────────────────────────────────────────────────
@@ -263,23 +264,19 @@ export default function HppScreen() {
 
   const result = useMemo(() => {
     if (!selectedRecipe) return null;
-    const totalZonaDapur = listrik + gas + tenagaKerja + overhead;
-    const totalZonaFinal = kotak + stiker + kemasanLain;
-    const hppTotal = selectedRecipe.baseRecipeCost + totalZonaDapur + totalZonaFinal;
-    const hppPerUnit = selectedRecipe.batchSize > 0 ? hppTotal / selectedRecipe.batchSize : 0;
-    const hargaReseller = hppPerUnit * (1 + marginReseller / 100);
-    const hargaEndUser = hppPerUnit * (1 + marginEndUser / 100);
-    return {
+    return calculateHpp({
       baseRecipeCost: selectedRecipe.baseRecipeCost,
-      totalZonaDapur,
-      totalZonaFinal,
-      hppTotal,
-      hppPerUnit,
-      hargaReseller,
-      hargaEndUser,
-      profitReseller: hargaReseller - hppPerUnit,
-      profitEndUser: hargaEndUser - hppPerUnit,
-    };
+      batchSize: selectedRecipe.batchSize,
+      listrik,
+      gas,
+      tenagaKerja,
+      overhead,
+      kotak,
+      stiker,
+      kemasanLain,
+      marginReseller,
+      marginEndUser,
+    });
   }, [selectedRecipe, listrik, gas, tenagaKerja, overhead, kotak, stiker, kemasanLain, marginReseller, marginEndUser]);
 
   function handleRecipeSelect(id: string) {

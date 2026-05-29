@@ -20,7 +20,7 @@ import { useCreateSale, useUpdateSale } from '@/hooks/useSales';
 import { useHppEntries } from '@/hooks/useHpp';
 import { HppPickerModal } from '@/components/HppPickerModal';
 import { formatRupiah, getTodayString } from '@/lib/format';
-import type { Sale, CreateSaleDto } from '@/hooks/useSales';
+import type { Sale, CreateSaleDto } from '@bakersgo/types';
 
 const CHANNELS = ['RESELLER', 'END_USER'] as const;
 type Channel = typeof CHANNELS[number];
