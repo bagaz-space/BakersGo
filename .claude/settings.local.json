@@ -4,7 +4,26 @@
       "PowerShell(Get-Command *)",
       "Bash(where.exe flutter *)",
       "Bash(where.exe dart *)",
-      "PowerShell(Get-NetTCPConnection *)"
+      "PowerShell(Get-NetTCPConnection *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(npx tsc *)",
+      "PowerShell(netstat *)",
+      "PowerShell(curl *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" -X OPTIONS \"http://localhost:3000/hpp/test-id\" -H \"Origin: http://localhost:3001\" -H \"Access-Control-Request-Method: PUT\" -H \"Access-Control-Request-Headers: authorization,content-type\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" -X OPTIONS \"http://localhost:3000/hpp/test-id\" -H \"Origin: http://localhost:3001\" -H \"Access-Control-Request-Method: DELETE\" -H \"Access-Control-Request-Headers: authorization\")",
+      "Bash(curl -s -X DELETE \"http://localhost:3000/hpp/nonexistent-id\" -H \"Authorization: Bearer fake-token\")",
+      "Bash(pnpm dev *)",
+      "Bash(git checkout *)",
+      "Bash(git cherry-pick *)",
+      "Bash(pnpm tsc *)",
+      "Bash(git *)",
+      "PowerShell(git *)",
+      "PowerShell(pnpm install *)",
+      "Bash(node *)",
+      "Bash(Get-ChildItem -Path \"D:\\\\personal\\\\BakersGo\" -Recurse -Name)",
+      "Bash(Get-ChildItem -Path \"D:\\\\personal\\\\BakersGo\" -Depth 2)",
+      "Bash(Select-Object FullName, PSIsContainer)"
     ]
   }
 }
