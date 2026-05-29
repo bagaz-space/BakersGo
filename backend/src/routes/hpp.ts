@@ -1,72 +1,42 @@
 import type { FastifyInstance } from 'fastify';
 import { requireAuth, getUserId } from '../middleware/auth';
-import { prisma } from '../lib/prisma';
+import { hppService } from '../services/hpp.service';
 import type { CreateHppDto, UpdateHppDto } from '@bakersgo/types';
 
 export async function hppRoutes(app: FastifyInstance) {
-  // GET /hpp
   app.get('/hpp', { preHandler: requireAuth }, async (request, reply) => {
     const userId = getUserId(request);
-    const entries = await prisma.hppEntry.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
-    });
-    return reply.send({ data: entries, total: entries.length });
+    return reply.send(await hppService.list(userId));
   });
 
-  // POST /hpp
   app.post<{ Body: CreateHppDto }>(
     '/hpp',
     { preHandler: requireAuth },
     async (request, reply) => {
       const userId = getUserId(request);
-      const {
-        recipeId, recipeName, batchSize, batchUnit, baseRecipeCost,
-        listrik, gas, tenagaKerja, overhead,
-        kotak, stiker, kemasanLain,
-        marginReseller, marginEndUser,
-        hppTotal, hppPerUnit, hargaReseller, hargaEndUser,
-      } = request.body;
-
-      const entry = await prisma.hppEntry.create({
-        data: {
-          userId, recipeId, recipeName, batchSize, batchUnit, baseRecipeCost,
-          listrik, gas, tenagaKerja, overhead,
-          kotak, stiker, kemasanLain,
-          marginReseller, marginEndUser,
-          hppTotal, hppPerUnit, hargaReseller, hargaEndUser,
-        },
-      });
-
+      const entry = await hppService.create(userId, request.body);
       return reply.status(201).send(entry);
     },
   );
 
-  // PUT /hpp/:id
   app.put<{ Params: { id: string }; Body: UpdateHppDto }>(
     '/hpp/:id',
     { preHandler: requireAuth },
     async (request, reply) => {
       const userId = getUserId(request);
-      const { id } = request.params;
-      const existing = await prisma.hppEntry.findFirst({ where: { id, userId } });
-      if (!existing) return reply.status(404).send({ message: 'HPP entry tidak ditemukan' });
-
-      const updated = await prisma.hppEntry.update({ where: { id }, data: request.body });
-      return reply.send(updated);
+      const result = await hppService.update(userId, request.params.id, request.body);
+      if (!result) return reply.status(404).send({ message: 'HPP entry tidak ditemukan' });
+      return reply.send(result);
     },
   );
 
-  // DELETE /hpp/:id
   app.delete<{ Params: { id: string } }>(
     '/hpp/:id',
     { preHandler: requireAuth },
     async (request, reply) => {
       const userId = getUserId(request);
-      const { id } = request.params;
-      const existing = await prisma.hppEntry.findFirst({ where: { id, userId } });
-      if (!existing) return reply.status(404).send({ message: 'HPP entry tidak ditemukan' });
-      await prisma.hppEntry.delete({ where: { id } });
+      const deleted = await hppService.delete(userId, request.params.id);
+      if (!deleted) return reply.status(404).send({ message: 'HPP entry tidak ditemukan' });
       return reply.status(204).send();
     },
   );

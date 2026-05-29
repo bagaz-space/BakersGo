@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { requireAuth, getUserId } from '../middleware/auth';
-import { prisma } from '../lib/prisma';
+import { saleService } from '../services/sale.service';
 import type { CreateSaleDto, UpdateSaleDto } from '@bakersgo/types';
 
 export async function saleRoutes(app: FastifyInstance) {
@@ -10,18 +10,7 @@ export async function saleRoutes(app: FastifyInstance) {
     async (request, reply) => {
       const userId = getUserId(request);
       const { from, to } = request.query;
-
-      const where: Record<string, unknown> = { userId };
-      if (from || to) {
-        where.date = {
-          ...(from ? { gte: new Date(from) } : {}),
-          ...(to ? { lte: new Date(to) } : {}),
-        };
-      }
-
-      const sales = await prisma.sale.findMany({ where, orderBy: { date: 'desc' } });
-      const totalRevenue = sales.reduce((sum, s) => sum + s.totalRevenue, 0);
-      return reply.send({ data: sales, total: sales.length, totalRevenue });
+      return reply.send(await saleService.list(userId, from, to));
     },
   );
 
@@ -30,11 +19,7 @@ export async function saleRoutes(app: FastifyInstance) {
     { preHandler: requireAuth },
     async (request, reply) => {
       const userId = getUserId(request);
-      const { date, itemName, recipeId, qty, pricePerUnit } = request.body;
-      const totalRevenue = qty * pricePerUnit;
-      const sale = await prisma.sale.create({
-        data: { date: new Date(date), itemName, recipeId, qty, pricePerUnit, totalRevenue, userId },
-      });
+      const sale = await saleService.create(userId, request.body);
       return reply.status(201).send(sale);
     },
   );
@@ -44,20 +29,9 @@ export async function saleRoutes(app: FastifyInstance) {
     { preHandler: requireAuth },
     async (request, reply) => {
       const userId = getUserId(request);
-      const { id } = request.params;
-      const existing = await prisma.sale.findFirst({ where: { id, userId } });
-      if (!existing) return reply.status(404).send({ message: 'Penjualan tidak ditemukan' });
-
-      const body = request.body;
-      const qty = body.qty ?? existing.qty;
-      const pricePerUnit = body.pricePerUnit ?? existing.pricePerUnit;
-      const data = {
-        ...body,
-        ...(body.date ? { date: new Date(body.date) } : {}),
-        totalRevenue: qty * pricePerUnit,
-      };
-      const updated = await prisma.sale.update({ where: { id }, data });
-      return reply.send(updated);
+      const result = await saleService.update(userId, request.params.id, request.body);
+      if (!result) return reply.status(404).send({ message: 'Penjualan tidak ditemukan' });
+      return reply.send(result);
     },
   );
 
@@ -66,10 +40,8 @@ export async function saleRoutes(app: FastifyInstance) {
     { preHandler: requireAuth },
     async (request, reply) => {
       const userId = getUserId(request);
-      const { id } = request.params;
-      const existing = await prisma.sale.findFirst({ where: { id, userId } });
-      if (!existing) return reply.status(404).send({ message: 'Penjualan tidak ditemukan' });
-      await prisma.sale.delete({ where: { id } });
+      const deleted = await saleService.delete(userId, request.params.id);
+      if (!deleted) return reply.status(404).send({ message: 'Penjualan tidak ditemukan' });
       return reply.status(204).send();
     },
   );

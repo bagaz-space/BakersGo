@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { requireAuth, getUserId } from '../middleware/auth';
-import { prisma } from '../lib/prisma';
+import { expenseService } from '../services/expense.service';
 import type { CreateExpenseDto, UpdateExpenseDto } from '@bakersgo/types';
 
 export async function expenseRoutes(app: FastifyInstance) {
@@ -10,22 +10,7 @@ export async function expenseRoutes(app: FastifyInstance) {
     async (request, reply) => {
       const userId = getUserId(request);
       const { from, to } = request.query;
-
-      const where: Record<string, unknown> = { userId };
-      if (from || to) {
-        where.date = {
-          ...(from ? { gte: new Date(from) } : {}),
-          ...(to ? { lte: new Date(to) } : {}),
-        };
-      }
-
-      const expenses = await prisma.expense.findMany({
-        where,
-        orderBy: { date: 'desc' },
-      });
-
-      const totalAmount = expenses.reduce((sum, e) => sum + e.amount, 0);
-      return reply.send({ data: expenses, total: expenses.length, totalAmount });
+      return reply.send(await expenseService.list(userId, from, to));
     },
   );
 
@@ -34,10 +19,7 @@ export async function expenseRoutes(app: FastifyInstance) {
     { preHandler: requireAuth },
     async (request, reply) => {
       const userId = getUserId(request);
-      const { date, category, description, amount } = request.body;
-      const expense = await prisma.expense.create({
-        data: { date: new Date(date), category, description, amount, userId },
-      });
+      const expense = await expenseService.create(userId, request.body);
       return reply.status(201).send(expense);
     },
   );
@@ -47,13 +29,9 @@ export async function expenseRoutes(app: FastifyInstance) {
     { preHandler: requireAuth },
     async (request, reply) => {
       const userId = getUserId(request);
-      const { id } = request.params;
-      const existing = await prisma.expense.findFirst({ where: { id, userId } });
-      if (!existing) return reply.status(404).send({ message: 'Pengeluaran tidak ditemukan' });
-
-      const data = { ...request.body, ...(request.body.date ? { date: new Date(request.body.date) } : {}) };
-      const updated = await prisma.expense.update({ where: { id }, data });
-      return reply.send(updated);
+      const result = await expenseService.update(userId, request.params.id, request.body);
+      if (!result) return reply.status(404).send({ message: 'Pengeluaran tidak ditemukan' });
+      return reply.send(result);
     },
   );
 
@@ -62,10 +40,8 @@ export async function expenseRoutes(app: FastifyInstance) {
     { preHandler: requireAuth },
     async (request, reply) => {
       const userId = getUserId(request);
-      const { id } = request.params;
-      const existing = await prisma.expense.findFirst({ where: { id, userId } });
-      if (!existing) return reply.status(404).send({ message: 'Pengeluaran tidak ditemukan' });
-      await prisma.expense.delete({ where: { id } });
+      const deleted = await expenseService.delete(userId, request.params.id);
+      if (!deleted) return reply.status(404).send({ message: 'Pengeluaran tidak ditemukan' });
       return reply.status(204).send();
     },
   );
