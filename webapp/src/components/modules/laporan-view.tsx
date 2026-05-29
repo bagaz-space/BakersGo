@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Download, TrendingUp, TrendingDown, DollarSign, ShieldCheck } from 'lucide-react';
+import { Download, TrendingUp, TrendingDown, DollarSign, ShieldCheck, Info } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -67,29 +67,31 @@ export function LaporanView() {
   }, [expenseData, saleData]);
 
   const stats = [
-    { label: 'Total Penjualan', value: summary?.totalRevenue ?? 0, icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-50' },
-    { label: 'Total Pengeluaran', value: summary?.totalExpenses ?? 0, icon: TrendingDown, color: 'text-red-600', bg: 'bg-red-50' },
-    { label: 'Laba Bersih', value: summary?.netProfit ?? 0, icon: DollarSign, color: 'text-[#A0813A]', bg: 'bg-[#A0813A]/10' },
-    { label: 'Saldo Aman', value: summary?.safeBalance ?? 0, icon: ShieldCheck, color: 'text-blue-600', bg: 'bg-blue-50' },
+    { label: 'Total Penjualan', value: summary?.totalRevenue ?? 0, icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-50', hint: undefined },
+    { label: 'Total Pengeluaran', value: summary?.totalExpenses ?? 0, icon: TrendingDown, color: 'text-red-600', bg: 'bg-red-50', hint: undefined },
+    { label: 'Laba Bersih', value: summary?.netProfit ?? 0, icon: DollarSign, color: 'text-[#A0813A]', bg: 'bg-[#A0813A]/10', hint: undefined },
+    { label: 'Saldo Aman', value: summary?.safeBalance ?? 0, icon: ShieldCheck, color: 'text-blue-600', bg: 'bg-blue-50', hint: 'Estimasi saldo kas yang aman: Laba Bersih dikurangi cadangan operasional.' },
   ];
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-        <div className="flex items-center gap-2 flex-1 flex-wrap">
-          <input
-            type="date"
-            value={from}
-            onChange={(e) => setFrom(e.target.value)}
-            className="rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0813A] focus:border-[#A0813A] transition-colors"
-          />
-          <span className="text-xs text-muted-foreground">—</span>
-          <input
-            type="date"
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-            className="rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0813A] focus:border-[#A0813A] transition-colors"
-          />
+        <div className="flex flex-wrap items-center gap-2 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              type="date"
+              value={from}
+              onChange={(e) => setFrom(e.target.value)}
+              className="rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0813A] focus:border-[#A0813A] transition-colors"
+            />
+            <span className="text-xs text-muted-foreground">—</span>
+            <input
+              type="date"
+              value={to}
+              onChange={(e) => setTo(e.target.value)}
+              className="rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0813A] focus:border-[#A0813A] transition-colors"
+            />
+          </div>
           <div className="flex gap-2">
             <button onClick={() => { setFrom(monthStart()); setTo(today()); }}
               className="rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-muted transition-colors">
@@ -125,13 +127,24 @@ export function LaporanView() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {stats.map(({ label, value, icon: Icon, color, bg }) => (
+        {stats.map(({ label, value, icon: Icon, color, bg, hint }) => (
           <div key={label} className="rounded-2xl border border-border bg-card p-5 flex items-start gap-4">
             <div className={`rounded-xl p-2.5 ${bg}`}>
               <Icon size={20} className={color} />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">{label}</p>
+              <div className="flex items-center gap-1">
+                <p className="text-xs text-muted-foreground">{label}</p>
+                {hint && (
+                  <div className="relative group">
+                    <Info size={11} className="text-muted-foreground cursor-help" />
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 rounded-lg bg-foreground px-2.5 py-1.5 text-xs text-background opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 text-center leading-relaxed">
+                      {hint}
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-foreground" />
+                    </div>
+                  </div>
+                )}
+              </div>
               {reportLoading ? (
                 <div className="mt-1 h-5 w-24 animate-pulse rounded bg-muted" />
               ) : (
@@ -173,7 +186,8 @@ export function LaporanView() {
         <div className="border-b border-border px-4 py-3">
           <h3 className="text-sm font-medium text-foreground">Semua Transaksi</h3>
         </div>
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-[420px]">
           <thead>
             <tr className="border-b border-border bg-muted/40">
               <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Tanggal</th>
@@ -214,6 +228,7 @@ export function LaporanView() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

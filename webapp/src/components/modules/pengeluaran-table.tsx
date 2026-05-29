@@ -107,6 +107,7 @@ function ExpenseModal({
               <ChevronDown size={15} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#A0813A]" />
             </div>
             {errors.category && <p className="mt-1 text-xs text-destructive">{errors.category.message}</p>}
+            <p className="mt-1 text-xs text-muted-foreground">Pilih kategori yang paling sesuai untuk memudahkan analisis pengeluaran di laporan.</p>
           </div>
 
           <div>
@@ -180,21 +181,25 @@ export function PengeluaranTable() {
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-        <div className="flex items-center gap-2 flex-1">
-          <label className="text-xs text-muted-foreground whitespace-nowrap">Dari</label>
-          <input
-            type="date"
-            value={from}
-            onChange={(e) => setFrom(e.target.value)}
-            className="rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0813A] focus:border-[#A0813A] transition-colors"
-          />
-          <label className="text-xs text-muted-foreground whitespace-nowrap">Sampai</label>
-          <input
-            type="date"
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-            className="rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0813A] focus:border-[#A0813A] transition-colors"
-          />
+        <div className="flex flex-wrap items-center gap-2 flex-1">
+          <div className="flex items-center gap-2">
+            <label className="text-xs text-muted-foreground whitespace-nowrap">Dari</label>
+            <input
+              type="date"
+              value={from}
+              onChange={(e) => setFrom(e.target.value)}
+              className="rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0813A] focus:border-[#A0813A] transition-colors"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="text-xs text-muted-foreground whitespace-nowrap">Sampai</label>
+            <input
+              type="date"
+              value={to}
+              onChange={(e) => setTo(e.target.value)}
+              className="rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0813A] focus:border-[#A0813A] transition-colors"
+            />
+          </div>
         </div>
         <button
           onClick={openAdd}
@@ -212,7 +217,8 @@ export function PengeluaranTable() {
       )}
 
       <div className="rounded-2xl border border-border bg-card overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-[480px]">
           <thead>
             <tr className="border-b border-border bg-muted/40">
               <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Tanggal</th>
@@ -253,6 +259,7 @@ export function PengeluaranTable() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {expenses.length > 0 && (

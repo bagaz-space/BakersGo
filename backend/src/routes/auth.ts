@@ -9,6 +9,8 @@ import type {
   RegisterRequest,
   AuthResponse,
   UserProfile,
+  UpdateProfileRequest,
+  ChangePasswordRequest,
 } from '@bakersgo/types';
 
 function createPrisma() {
@@ -84,6 +86,56 @@ export async function authRoutes(app: FastifyInstance) {
       const user = await prisma.user.findUnique({ where: { id: userId } });
       if (!user) return reply.status(404).send({ message: 'User tidak ditemukan' });
       return reply.send(toUserProfile(user));
+    },
+  );
+
+  app.patch<{ Body: UpdateProfileRequest }>(
+    '/auth/profile',
+    { preHandler: requireAuth },
+    async (request, reply) => {
+      const id = getUserId(request);
+      const { userId, brandName } = request.body;
+
+      if (userId) {
+        const conflict = await prisma.user.findFirst({
+          where: { userId, NOT: { id } },
+        });
+        if (conflict) {
+          return reply.status(409).send({ message: 'Username sudah digunakan' });
+        }
+      }
+
+      const user = await prisma.user.update({
+        where: { id },
+        data: {
+          ...(userId !== undefined && { userId }),
+          ...(brandName !== undefined && { brandName }),
+        },
+      });
+
+      return reply.send(toUserProfile(user));
+    },
+  );
+
+  app.post<{ Body: ChangePasswordRequest }>(
+    '/auth/change-password',
+    { preHandler: requireAuth },
+    async (request, reply) => {
+      const id = getUserId(request);
+      const { currentPassword, newPassword } = request.body;
+
+      const user = await prisma.user.findUnique({ where: { id } });
+      if (!user) return reply.status(404).send({ message: 'User tidak ditemukan' });
+
+      const valid = await bcrypt.compare(currentPassword, user.password);
+      if (!valid) {
+        return reply.status(401).send({ message: 'Password saat ini tidak sesuai' });
+      }
+
+      const hashed = await bcrypt.hash(newPassword, 10);
+      await prisma.user.update({ where: { id }, data: { password: hashed } });
+
+      return reply.status(204).send();
     },
   );
 }

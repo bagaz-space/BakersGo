@@ -135,7 +135,7 @@ function RecipeModal({
 
           {/* Komposisi Bahan */}
           <div>
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between mb-1">
               <label className="text-sm font-medium text-foreground">Komposisi Bahan</label>
               <button
                 type="button"
@@ -146,6 +146,7 @@ function RecipeModal({
                 Tambah Bahan
               </button>
             </div>
+            <p className="mb-2 text-xs text-muted-foreground">Masukkan semua bahan yang dibutuhkan untuk satu batch. Subtotal per bahan dihitung otomatis.</p>
 
             {ingredientsError && (
               <p className="mb-2 text-xs text-destructive">{ingredientsError}</p>
@@ -162,9 +163,9 @@ function RecipeModal({
                     : 0;
 
                 return (
-                  <div key={field.id} className="flex gap-2 items-start">
+                  <div key={field.id} className="flex flex-col sm:flex-row gap-2 items-start">
                     {/* Ingredient selector */}
-                    <div className="flex-1 relative">
+                    <div className="flex-1 relative w-full">
                       <select
                         {...register(`ingredients.${index}.ingredientId`)}
                         className={`${fieldCls} appearance-none pr-9 cursor-pointer`}
@@ -188,7 +189,7 @@ function RecipeModal({
                     </div>
 
                     {/* Amount input */}
-                    <div className="w-28 shrink-0">
+                    <div className="w-full sm:w-28 shrink-0">
                       <input
                         type="number"
                         step="0.01"
@@ -213,7 +214,7 @@ function RecipeModal({
                     <button
                       type="button"
                       onClick={() => remove(index)}
-                      className="mt-2.5 p-1 text-muted-foreground hover:text-destructive transition-colors shrink-0"
+                      className="mt-0 sm:mt-2.5 self-end sm:self-auto p-1 text-muted-foreground hover:text-destructive transition-colors shrink-0"
                     >
                       <X size={14} />
                     </button>
@@ -230,11 +231,14 @@ function RecipeModal({
           </div>
 
           {/* Total cost preview */}
-          <div className="rounded-xl bg-[#A0813A]/10 border border-[#A0813A]/20 px-4 py-3 flex items-center justify-between">
-            <span className="text-sm font-medium text-[#A0813A]">Total Biaya Dasar</span>
-            <span className="text-sm font-semibold text-[#A0813A]">
-              {formatCurrency(totalCost)}
-            </span>
+          <div>
+            <div className="rounded-xl bg-[#A0813A]/10 border border-[#A0813A]/20 px-4 py-3 flex items-center justify-between">
+              <span className="text-sm font-medium text-[#A0813A]">Total Biaya Dasar</span>
+              <span className="text-sm font-semibold text-[#A0813A]">
+                {formatCurrency(totalCost)}
+              </span>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">Total biaya bahan untuk satu kali produksi batch ini.</p>
           </div>
 
           <div className="flex gap-3 pt-2">
@@ -336,7 +340,7 @@ export function MasterResepTable() {
           className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-dark transition-colors"
         >
           <Plus size={14} />
-          Tambah Resep
+          Buat Resep
         </button>
       </div>
 
@@ -347,7 +351,8 @@ export function MasterResepTable() {
       )}
 
       <div className="rounded-2xl border border-border bg-card overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-[480px]">
           <thead>
             <tr className="border-b border-border bg-muted/40">
               <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">
@@ -426,6 +431,7 @@ export function MasterResepTable() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {modalOpen && <RecipeModal recipe={editing} onClose={closeModal} />}

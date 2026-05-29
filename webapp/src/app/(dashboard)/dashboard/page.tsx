@@ -7,7 +7,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col h-full">
       <TopBar title="Beranda" />
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
         <DashboardSummary />
       </div>
     </div>

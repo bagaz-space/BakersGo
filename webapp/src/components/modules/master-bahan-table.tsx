@@ -92,7 +92,7 @@ function IngredientModal({
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Nama Bahan */}
             <div className="col-span-2">
               <label className="block text-sm font-medium text-foreground mb-1.5">Nama Bahan</label>
@@ -136,6 +136,7 @@ function IngredientModal({
                 placeholder="15000"
               />
               {errors.packagePrice && <p className="mt-1 text-xs text-destructive">{errors.packagePrice.message}</p>}
+              <p className="mt-1 text-xs text-muted-foreground">Total harga satu kemasan yang dibeli (mis: 1 karung tepung = Rp 60.000)</p>
             </div>
 
             {/* Volume Kemasan — decimal */}
@@ -151,13 +152,17 @@ function IngredientModal({
                 placeholder="1000.00"
               />
               {errors.packageVolume && <p className="mt-1 text-xs text-destructive">{errors.packageVolume.message}</p>}
+              <p className="mt-1 text-xs text-muted-foreground">Isi bersih dalam kemasan sesuai satuan yang dipilih (mis: 25 untuk 25 kg)</p>
             </div>
           </div>
 
           {/* Live price-per-unit preview */}
-          <div className="rounded-xl bg-[#A0813A]/10 border border-[#A0813A]/20 px-4 py-3 flex items-center justify-between">
-            <span className="text-sm font-medium text-[#A0813A]">Harga per Satuan</span>
-            <span className="text-sm font-semibold text-[#A0813A]">{formatCurrency(pricePerUnit)}</span>
+          <div>
+            <div className="rounded-xl bg-[#A0813A]/10 border border-[#A0813A]/20 px-4 py-3 flex items-center justify-between">
+              <span className="text-sm font-medium text-[#A0813A]">Harga per Satuan</span>
+              <span className="text-sm font-semibold text-[#A0813A]">{formatCurrency(pricePerUnit)}</span>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">Dihitung otomatis: Harga Kemasan ÷ Volume Kemasan</p>
           </div>
 
           <div className="flex gap-3 pt-2">
@@ -241,7 +246,8 @@ export function MasterBahanTable() {
       )}
 
       <div className="rounded-2xl border border-border bg-card overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-[600px]">
           <thead>
             <tr className="border-b border-border bg-muted/40">
               <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Nama Bahan</th>
@@ -292,6 +298,7 @@ export function MasterBahanTable() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {modalOpen && <IngredientModal ingredient={editing} onClose={closeModal} />}

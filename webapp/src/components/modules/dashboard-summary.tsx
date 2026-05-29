@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { TrendingUp, TrendingDown, DollarSign, ShieldCheck, ChevronLeft, ChevronRight } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, ShieldCheck, ChevronLeft, ChevronRight, Info } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -61,6 +61,7 @@ export function DashboardSummary() {
       icon: TrendingUp,
       color: 'text-green-600',
       bg: 'bg-green-50',
+      hint: undefined,
     },
     {
       label: 'Total Pengeluaran',
@@ -68,6 +69,7 @@ export function DashboardSummary() {
       icon: TrendingDown,
       color: 'text-red-600',
       bg: 'bg-red-50',
+      hint: undefined,
     },
     {
       label: 'Laba Bersih',
@@ -75,6 +77,7 @@ export function DashboardSummary() {
       icon: DollarSign,
       color: 'text-[#A0813A]',
       bg: 'bg-[#A0813A]/10',
+      hint: undefined,
     },
     {
       label: 'Saldo Aman',
@@ -82,6 +85,7 @@ export function DashboardSummary() {
       icon: ShieldCheck,
       color: 'text-blue-600',
       bg: 'bg-blue-50',
+      hint: 'Estimasi saldo kas yang tersedia setelah dikurangi cadangan biaya operasional.',
     },
   ];
 
@@ -104,13 +108,24 @@ export function DashboardSummary() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {stats.map(({ label, value, icon: Icon, color, bg }) => (
+        {stats.map(({ label, value, icon: Icon, color, bg, hint }) => (
           <div key={label} className="rounded-2xl border border-border bg-card p-5 flex items-start gap-4">
             <div className={`rounded-xl p-2.5 ${bg}`}>
               <Icon size={20} className={color} />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">{label}</p>
+              <div className="flex items-center gap-1">
+                <p className="text-xs text-muted-foreground">{label}</p>
+                {hint && (
+                  <div className="relative group">
+                    <Info size={11} className="text-muted-foreground cursor-help" />
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 rounded-lg bg-foreground px-2.5 py-1.5 text-xs text-background opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 text-center leading-relaxed">
+                      {hint}
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-foreground" />
+                    </div>
+                  </div>
+                )}
+              </div>
               {isLoading ? (
                 <div className="mt-1 h-5 w-24 animate-pulse rounded bg-muted" />
               ) : (
