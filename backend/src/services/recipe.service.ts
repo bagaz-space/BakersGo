@@ -4,12 +4,15 @@ import type { CreateRecipeDto, UpdateRecipeDto } from '@bakersgo/types';
 async function computeBaseRecipeCost(
   ingredients: { ingredientId: string; amount: number }[],
 ): Promise<number> {
-  let total = 0;
-  for (const item of ingredients) {
-    const ing = await prisma.ingredient.findUnique({ where: { id: item.ingredientId } });
-    if (ing) total += ing.pricePerUnit * item.amount;
-  }
-  return total;
+  const ids = ingredients.map((i) => i.ingredientId);
+  const rows = await prisma.ingredient.findMany({
+    where: { id: { in: ids } },
+    select: { id: true, pricePerUnit: true },
+  });
+  const priceMap = new Map(rows.map((r) => [r.id, r.pricePerUnit]));
+  return ingredients.reduce((total, item) => {
+    return total + (priceMap.get(item.ingredientId) ?? 0) * item.amount;
+  }, 0);
 }
 
 type RecipeWithIngredients = Awaited<ReturnType<typeof prisma.recipe.findFirst>> & {
