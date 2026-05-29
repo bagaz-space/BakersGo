@@ -1,9 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import bcrypt from 'bcryptjs';
-import { Pool } from 'pg';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '../generated/prisma/client';
 import { requireAuth, getUserId } from '../middleware/auth';
+import { prisma } from '../lib/prisma';
 import type {
   LoginRequest,
   RegisterRequest,
@@ -12,14 +10,6 @@ import type {
   UpdateProfileRequest,
   ChangePasswordRequest,
 } from '@bakersgo/types';
-
-function createPrisma() {
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-  const adapter = new PrismaPg(pool);
-  return new PrismaClient({ adapter });
-}
-
-const prisma = createPrisma();
 
 function toUserProfile(user: {
   id: string;

@@ -1,11 +1,6 @@
 import type { FastifyInstance } from 'fastify';
-import { Pool } from 'pg';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '../generated/prisma/client';
 import { requireAuth, getUserId } from '../middleware/auth';
-
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
+import { prisma } from '../lib/prisma';
 
 export async function reportRoutes(app: FastifyInstance) {
   app.get<{ Querystring: { from: string; to: string } }>(

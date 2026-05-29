@@ -1,12 +1,7 @@
 import type { FastifyInstance } from 'fastify';
-import { Pool } from 'pg';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '../generated/prisma/client';
 import { requireAuth, getUserId } from '../middleware/auth';
+import { prisma } from '../lib/prisma';
 import type { CreateRecipeDto, UpdateRecipeDto } from '@bakersgo/types';
-
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
 
 async function computeBaseRecipeCost(
   prismaClient: typeof prisma,
