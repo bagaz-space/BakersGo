@@ -83,77 +83,75 @@ function IngredientModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-md rounded-2xl bg-background shadow-xl">
-        <div className="flex items-center justify-between border-b border-border px-6 py-4">
+      <div className="w-full max-w-md rounded-2xl bg-background shadow-xl flex flex-col max-h-[90vh]">
+        <div className="flex items-center justify-between border-b border-border px-6 py-4 flex-shrink-0">
           <h2 className="text-base font-semibold text-foreground">
             {isEdit ? 'Edit Bahan' : 'Tambah Bahan'}
           </h2>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-lg leading-none">×</button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Nama Bahan */}
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-foreground mb-1.5">Nama Bahan</label>
-              <input
-                {...register('name')}
-                className={fieldCls}
-                placeholder="cth: Tepung Terigu"
-              />
-              {errors.name && <p className="mt-1 text-xs text-destructive">{errors.name.message}</p>}
-            </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4 overflow-y-auto">
+          {/* Nama Bahan */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1.5">Nama Bahan</label>
+            <input
+              {...register('name')}
+              className={fieldCls}
+              placeholder="cth: Tepung Terigu"
+            />
+            {errors.name && <p className="mt-1 text-xs text-destructive">{errors.name.message}</p>}
+          </div>
 
-            {/* Satuan — dropdown */}
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">Satuan</label>
-              <div className="relative">
-                <select
-                  {...register('unit')}
-                  className={`${fieldCls} appearance-none pr-9 cursor-pointer`}
-                >
-                  {UNIT_OPTIONS.map((u) => (
-                    <option key={u} value={u}>{u}</option>
-                  ))}
-                </select>
-                <ChevronDown
-                  size={15}
-                  className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#A0813A]"
-                />
-              </div>
-              {errors.unit && <p className="mt-1 text-xs text-destructive">{errors.unit.message}</p>}
-            </div>
-
-            {/* Harga Kemasan */}
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">Harga Kemasan (Rp)</label>
-              <input
-                type="number"
-                step="1"
-                min="0"
-                {...register('packagePrice')}
-                className={fieldCls}
-                placeholder="15000"
+          {/* Satuan — dropdown */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1.5">Satuan</label>
+            <div className="relative">
+              <select
+                {...register('unit')}
+                className={`${fieldCls} appearance-none pr-9 cursor-pointer`}
+              >
+                {UNIT_OPTIONS.map((u) => (
+                  <option key={u} value={u}>{u}</option>
+                ))}
+              </select>
+              <ChevronDown
+                size={15}
+                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#A0813A]"
               />
-              {errors.packagePrice && <p className="mt-1 text-xs text-destructive">{errors.packagePrice.message}</p>}
-              <p className="mt-1 text-xs text-muted-foreground">Total harga satu kemasan yang dibeli (mis: 1 karung tepung = Rp 60.000)</p>
             </div>
+            {errors.unit && <p className="mt-1 text-xs text-destructive">{errors.unit.message}</p>}
+          </div>
 
-            {/* Volume Kemasan — decimal */}
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">Volume Kemasan</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                {...register('packageVolume')}
-                onInput={handleDecimalInput}
-                className={fieldCls}
-                placeholder="1000.00"
-              />
-              {errors.packageVolume && <p className="mt-1 text-xs text-destructive">{errors.packageVolume.message}</p>}
-              <p className="mt-1 text-xs text-muted-foreground">Isi bersih dalam kemasan sesuai satuan yang dipilih (mis: 25 untuk 25 kg)</p>
-            </div>
+          {/* Harga Kemasan */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1.5">Harga Kemasan (Rp)</label>
+            <input
+              type="number"
+              step="1"
+              min="0"
+              {...register('packagePrice')}
+              className={fieldCls}
+              placeholder="15000"
+            />
+            {errors.packagePrice && <p className="mt-1 text-xs text-destructive">{errors.packagePrice.message}</p>}
+            <p className="mt-1 text-xs text-muted-foreground">Total harga satu kemasan yang dibeli (mis: 1 karung tepung = Rp 60.000)</p>
+          </div>
+
+          {/* Volume Kemasan — decimal */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1.5">Volume Kemasan</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              {...register('packageVolume')}
+              onInput={handleDecimalInput}
+              className={fieldCls}
+              placeholder="1000.00"
+            />
+            {errors.packageVolume && <p className="mt-1 text-xs text-destructive">{errors.packageVolume.message}</p>}
+            <p className="mt-1 text-xs text-muted-foreground">Isi bersih dalam kemasan sesuai satuan yang dipilih (mis: 25 untuk 25 kg)</p>
           </div>
 
           {/* Live price-per-unit preview */}

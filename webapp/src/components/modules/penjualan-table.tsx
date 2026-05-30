@@ -105,15 +105,15 @@ function SaleModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-md rounded-2xl bg-background shadow-xl">
-        <div className="flex items-center justify-between border-b border-border px-6 py-4">
+      <div className="w-full max-w-md rounded-2xl bg-background shadow-xl flex flex-col max-h-[90vh]">
+        <div className="flex items-center justify-between border-b border-border px-6 py-4 flex-shrink-0">
           <h2 className="text-base font-semibold text-foreground">
             {isEdit ? 'Edit Penjualan' : 'Tambah Penjualan'}
           </h2>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-lg leading-none">×</button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4 overflow-y-auto">
           <div>
             <label className="block text-sm font-medium text-foreground mb-1.5">Tanggal</label>
             <input type="date" {...register('date')} className={fieldCls} />
@@ -121,7 +121,7 @@ function SaleModal({
           </div>
 
           {!isEdit && hppEntries.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-1.5">Produk (HPP)</label>
                 <div className="relative">
@@ -157,7 +157,7 @@ function SaleModal({
             {errors.itemName && <p className="mt-1 text-xs text-destructive">{errors.itemName.message}</p>}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3">
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">Qty</label>
               <input type="number" min="1" step="1" {...register('qty')} className={fieldCls} placeholder="10" />
@@ -235,30 +235,30 @@ export function PenjualanTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-        <div className="flex flex-wrap items-center gap-2 flex-1">
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-muted-foreground whitespace-nowrap">Dari</label>
+      <div className="flex flex-col sm:flex-row sm:items-end gap-3">
+        <div className="grid grid-cols-2 gap-2 flex-1">
+          <div>
+            <label className="block text-xs text-muted-foreground mb-1">Dari</label>
             <input
               type="date"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
-              className="rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0813A] focus:border-[#A0813A] transition-colors"
+              className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0813A] focus:border-[#A0813A] transition-colors"
             />
           </div>
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-muted-foreground whitespace-nowrap">Sampai</label>
+          <div>
+            <label className="block text-xs text-muted-foreground mb-1">Sampai</label>
             <input
               type="date"
               value={to}
               onChange={(e) => setTo(e.target.value)}
-              className="rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0813A] focus:border-[#A0813A] transition-colors"
+              className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0813A] focus:border-[#A0813A] transition-colors"
             />
           </div>
         </div>
         <button
           onClick={openAdd}
-          className="flex items-center gap-2 rounded-xl bg-[#A0813A] px-4 py-2 text-sm font-medium text-white hover:opacity-90 transition-colors whitespace-nowrap"
+          className="flex items-center justify-center gap-2 rounded-xl bg-[#A0813A] px-4 py-2.5 text-sm font-medium text-white hover:opacity-90 transition-colors whitespace-nowrap"
         >
           <Plus size={14} />
           Tambah Penjualan
@@ -271,7 +271,43 @@ export function PenjualanTable() {
         </div>
       )}
 
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
+      {/* Mobile: card list */}
+      <div className="sm:hidden">
+        {isLoading ? (
+          <p className="py-12 text-center text-sm text-muted-foreground">Memuat data...</p>
+        ) : sales.length === 0 ? (
+          <p className="py-12 text-center text-sm text-muted-foreground">Belum ada penjualan di periode ini.</p>
+        ) : (
+          <div className="space-y-2">
+            {sales.map((s) => (
+              <div key={s.id} className="rounded-xl border border-border bg-card p-3.5">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-foreground truncate">{s.itemName}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {formatDate(s.date)} · {s.qty} pcs × {formatCurrency(s.pricePerUnit)}
+                    </p>
+                  </div>
+                  <div className="flex-shrink-0 text-right">
+                    <p className="text-sm font-semibold text-foreground">{formatCurrency(s.totalRevenue)}</p>
+                    <div className="flex items-center justify-end gap-1 mt-1.5">
+                      <button onClick={() => openEdit(s)} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                        <Pencil size={14} />
+                      </button>
+                      <button onClick={() => setDeleting(s)} className="rounded-lg p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Desktop: table */}
+      <div className="hidden sm:block rounded-2xl border border-border bg-card overflow-hidden">
         <div className="overflow-x-auto">
         <table className="w-full text-sm min-w-[520px]">
           <thead>

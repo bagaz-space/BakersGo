@@ -180,30 +180,30 @@ export function PengeluaranTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-        <div className="flex flex-wrap items-center gap-2 flex-1">
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-muted-foreground whitespace-nowrap">Dari</label>
+      <div className="flex flex-col sm:flex-row sm:items-end gap-3">
+        <div className="grid grid-cols-2 gap-2 flex-1">
+          <div>
+            <label className="block text-xs text-muted-foreground mb-1">Dari</label>
             <input
               type="date"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
-              className="rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0813A] focus:border-[#A0813A] transition-colors"
+              className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0813A] focus:border-[#A0813A] transition-colors"
             />
           </div>
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-muted-foreground whitespace-nowrap">Sampai</label>
+          <div>
+            <label className="block text-xs text-muted-foreground mb-1">Sampai</label>
             <input
               type="date"
               value={to}
               onChange={(e) => setTo(e.target.value)}
-              className="rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0813A] focus:border-[#A0813A] transition-colors"
+              className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0813A] focus:border-[#A0813A] transition-colors"
             />
           </div>
         </div>
         <button
           onClick={openAdd}
-          className="flex items-center gap-2 rounded-xl bg-[#A0813A] px-4 py-2 text-sm font-medium text-white hover:opacity-90 transition-colors whitespace-nowrap"
+          className="flex items-center justify-center gap-2 rounded-xl bg-[#A0813A] px-4 py-2.5 text-sm font-medium text-white hover:opacity-90 transition-colors whitespace-nowrap"
         >
           <Plus size={14} />
           Tambah Pengeluaran
@@ -216,7 +216,46 @@ export function PengeluaranTable() {
         </div>
       )}
 
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
+      {/* Mobile: card list */}
+      <div className="sm:hidden">
+        {isLoading ? (
+          <p className="py-12 text-center text-sm text-muted-foreground">Memuat data...</p>
+        ) : expenses.length === 0 ? (
+          <p className="py-12 text-center text-sm text-muted-foreground">Belum ada pengeluaran di periode ini.</p>
+        ) : (
+          <div className="space-y-2">
+            {expenses.map((exp) => (
+              <div key={exp.id} className="rounded-xl border border-border bg-card p-3.5">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="rounded-full bg-[#A0813A]/10 px-2.5 py-0.5 text-xs font-medium text-[#A0813A]">
+                        {CATEGORY_LABELS[exp.category]}
+                      </span>
+                      <span className="text-xs text-muted-foreground">{formatDate(exp.date)}</span>
+                    </div>
+                    <p className="text-sm text-foreground">{exp.description}</p>
+                  </div>
+                  <div className="flex-shrink-0 text-right">
+                    <p className="text-sm font-semibold text-foreground">{formatCurrency(exp.amount)}</p>
+                    <div className="flex items-center justify-end gap-1 mt-1.5">
+                      <button onClick={() => openEdit(exp)} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                        <Pencil size={14} />
+                      </button>
+                      <button onClick={() => setDeleting(exp)} className="rounded-lg p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Desktop: table */}
+      <div className="hidden sm:block rounded-2xl border border-border bg-card overflow-hidden">
         <div className="overflow-x-auto">
         <table className="w-full text-sm min-w-[480px]">
           <thead>

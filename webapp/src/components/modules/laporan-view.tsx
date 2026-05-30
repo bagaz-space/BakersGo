@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Download, TrendingUp, TrendingDown, DollarSign, ShieldCheck, Info } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, ShieldCheck, Info } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -76,65 +76,45 @@ export function LaporanView() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-        <div className="flex flex-wrap items-center gap-2 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <input
-              type="date"
-              value={from}
-              onChange={(e) => setFrom(e.target.value)}
-              className="rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0813A] focus:border-[#A0813A] transition-colors"
-            />
-            <span className="text-xs text-muted-foreground">—</span>
-            <input
-              type="date"
-              value={to}
-              onChange={(e) => setTo(e.target.value)}
-              className="rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0813A] focus:border-[#A0813A] transition-colors"
-            />
-          </div>
-          <div className="flex gap-2">
-            <button onClick={() => { setFrom(monthStart()); setTo(today()); }}
-              className="rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-muted transition-colors">
-              Bulan Ini
-            </button>
-            <button onClick={() => { setFrom(threeMonthsAgo()); setTo(today()); }}
-              className="rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-muted transition-colors">
-              3 Bulan
-            </button>
-            <button onClick={() => { setFrom(yearStart()); setTo(today()); }}
-              className="rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-muted transition-colors">
-              Tahun Ini
-            </button>
-          </div>
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-2">
+          <input
+            type="date"
+            value={from}
+            onChange={(e) => setFrom(e.target.value)}
+            className="w-full sm:w-auto rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0813A] focus:border-[#A0813A] transition-colors"
+          />
+          <input
+            type="date"
+            value={to}
+            onChange={(e) => setTo(e.target.value)}
+            className="w-full sm:w-auto rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A0813A] focus:border-[#A0813A] transition-colors"
+          />
         </div>
-
         <div className="flex gap-2">
-          <button
-            onClick={() => alert('Export CSV — belum diimplementasikan')}
-            className="flex items-center gap-1.5 rounded-xl border border-border px-3 py-2 text-xs hover:bg-muted transition-colors"
-          >
-            <Download size={13} />
-            CSV
+          <button onClick={() => { setFrom(monthStart()); setTo(today()); }}
+            className="rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-muted transition-colors">
+            Bulan Ini
           </button>
-          <button
-            onClick={() => alert('Export PDF — belum diimplementasikan')}
-            className="flex items-center gap-1.5 rounded-xl border border-border px-3 py-2 text-xs hover:bg-muted transition-colors"
-          >
-            <Download size={13} />
-            PDF
+          <button onClick={() => { setFrom(threeMonthsAgo()); setTo(today()); }}
+            className="rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-muted transition-colors">
+            3 Bulan
+          </button>
+          <button onClick={() => { setFrom(yearStart()); setTo(today()); }}
+            className="rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-muted transition-colors">
+            Tahun Ini
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
         {stats.map(({ label, value, icon: Icon, color, bg, hint }) => (
-          <div key={label} className="rounded-2xl border border-border bg-card p-5 flex items-start gap-4">
-            <div className={`rounded-xl p-2.5 ${bg}`}>
-              <Icon size={20} className={color} />
+          <div key={label} className="rounded-2xl border border-border bg-card p-3.5 sm:p-5 flex items-start gap-2 sm:gap-4">
+            <div className={`rounded-xl p-2 sm:p-2.5 ${bg} flex-shrink-0`}>
+              <Icon size={18} className={color} />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-1">
-                <p className="text-xs text-muted-foreground">{label}</p>
+                <p className="text-xs text-muted-foreground leading-tight">{label}</p>
                 {hint && (
                   <div className="relative group">
                     <Info size={11} className="text-muted-foreground cursor-help" />
@@ -146,9 +126,9 @@ export function LaporanView() {
                 )}
               </div>
               {reportLoading ? (
-                <div className="mt-1 h-5 w-24 animate-pulse rounded bg-muted" />
+                <div className="mt-1 h-5 w-16 animate-pulse rounded bg-muted" />
               ) : (
-                <p className={`mt-0.5 text-base font-semibold ${value < 0 ? 'text-red-600' : 'text-foreground'}`}>
+                <p className={`mt-0.5 text-sm sm:text-base font-semibold ${value < 0 ? 'text-red-600' : 'text-foreground'}`}>
                   {formatCurrency(value)}
                 </p>
               )}
@@ -182,7 +162,42 @@ export function LaporanView() {
         </div>
       )}
 
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
+      {/* Mobile: card list */}
+      <div className="sm:hidden space-y-3">
+        <h3 className="text-sm font-medium text-foreground">Semua Transaksi</h3>
+        {combined.length === 0 ? (
+          <p className="py-8 text-center text-sm text-muted-foreground">Belum ada transaksi di periode ini.</p>
+        ) : (
+          <div className="space-y-2">
+            {combined.map((item) => (
+              <div key={`${item.type}-${item.id}`} className="rounded-xl border border-border bg-card p-3.5">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                        item.type === 'sale' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                      }`}>
+                        {item.type === 'sale' ? 'Penjualan' : 'Pengeluaran'}
+                      </span>
+                      <span className="text-xs text-muted-foreground">{formatDate(item.date)}</span>
+                    </div>
+                    <p className="text-sm text-foreground">
+                      {item.label}
+                      <span className="ml-1.5 text-xs text-muted-foreground">{item.badge}</span>
+                    </p>
+                  </div>
+                  <p className={`text-sm font-semibold flex-shrink-0 ${item.amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                    {item.amount < 0 ? '-' : '+'}{formatCurrency(Math.abs(item.amount))}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Desktop: table */}
+      <div className="hidden sm:block rounded-2xl border border-border bg-card overflow-hidden">
         <div className="border-b border-border px-4 py-3">
           <h3 className="text-sm font-medium text-foreground">Semua Transaksi</h3>
         </div>
